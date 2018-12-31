@@ -11,7 +11,7 @@ public class Main {
 		Gameplay gameplay = new Gameplay();
 		
 
-		obj.setBounds(20, 20, 800, 600);
+		obj.setBounds(20, 20, 900, 600);
 		obj.setBackground(Color.white);
 		obj.setResizable(false);
 		obj.setVisible(true);
