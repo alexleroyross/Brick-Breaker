@@ -1,6 +1,7 @@
 package breaker;
 
 import java.awt.Graphics;
+
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -15,8 +16,8 @@ public class Gameplay extends JPanel implements KeyListener, ActionListener {
 	private ImageIcon gfxBall;
 	private ImageIcon gfxPlayer;
 	
-	private int plrX;
-	private int plrY;
+	Rect plrHitbox;
+	Rect ballHitbox;
 	
 	private int windowWidth;
 	private int windowHeight;
@@ -26,7 +27,7 @@ public class Gameplay extends JPanel implements KeyListener, ActionListener {
 	private int lvlUnits;
 	
 	private int numBlockRows;
-	private int[] level;
+	private Rect[][] level;
 	
 	public Gameplay()
 	{
@@ -34,8 +35,10 @@ public class Gameplay extends JPanel implements KeyListener, ActionListener {
 		gfxBall = new ImageIcon("ball.png");
 		gfxPlayer = new ImageIcon("player.png");
 		
-		plrX = 0;
-		plrY = 810;
+		plrHitbox.x = 0;
+		plrHitbox.y = 810;
+		plrHitbox.w = 135;
+		plrHitbox.h = 15;
 		
 		windowWidth = 900;
 		windowHeight = 600;
@@ -45,7 +48,7 @@ public class Gameplay extends JPanel implements KeyListener, ActionListener {
 		lvlUnits = lvlWidthUnits * lvlHeightUnits;
 		
 		numBlockRows = 15;
-		level = new int[lvlUnits];
+		level = new Rect[lvlHeightUnits][lvlWidthUnits];
 		setLevel();
 		//for(int i = 0; i < lvlUnits; i++)
 		//	level[i] = 0;
@@ -59,22 +62,31 @@ public class Gameplay extends JPanel implements KeyListener, ActionListener {
 	
 	public void gfxDraw(Graphics g)
 	{
-		gfxPlayer.paintIcon(this, g, plrX, plrY);
-		
+		gfxPlayer.paintIcon(this, g, plrHitbox.x, plrHitbox.y);
+		for(int i = 0; i < lvlHeightUnits; i++)
+		{
+			for(int j = 0; j < lvlWidthUnits; j++)
+			{
+				if(level[i][j] != null)
+				{
+					gfxBlock.paintIcon(this, g, level[i][j].x, level[i][j].y);
+				}
+			}
+		}
+		gfxBall.paintIcon(this, g, ballHitbox.x, ballHitbox.y);
 	}
 	
 	public void setLevel()
 	{
-		int i = 0;
-		while(i < numBlockRows * lvlWidthUnits)
+		for(int i = 0; i < lvlHeightUnits; i++)
 		{
-			level[i] = 1;
-			i++;
-		}
-		while(i < lvlUnits)
-		{
-			level[i] = 0;
-			i++;
+			for(int j = 0; j < lvlWidthUnits; j++)
+			{
+				if(i < numBlockRows)
+				{
+					level[i][j] = new Rect(j * unitPixels, i * unitPixels, unitPixels, unitPixels);
+				}
+			}
 		}
 	}
 	
