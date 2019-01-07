@@ -1,6 +1,14 @@
 package breaker;
 
 public class Rect {
+	public Rect()
+	{
+		this.x = 0;
+		this.y = 0;
+		this.w = 0;
+		this.h = 0;
+	}
+	
 	public Rect(int x, int y, int w, int h)
 	{
 		this.x = x;

@@ -34,14 +34,13 @@ public class Gameplay extends JPanel implements KeyListener, ActionListener {
 		gfxBlock = new ImageIcon("block.png");
 		gfxBall = new ImageIcon("ball.png");
 		gfxPlayer = new ImageIcon("player.png");
-		
-		plrHitbox.x = 0;
-		plrHitbox.y = 810;
-		plrHitbox.w = 135;
-		plrHitbox.h = 15;
-		
+
 		windowWidth = 900;
 		windowHeight = 600;
+		
+		plrHitbox = new Rect(windowWidth / 2 - 15, 810, 135, 15);
+		ballHitbox = new Rect(windowWidth / 2, 795, 15, 15);
+		
 		unitPixels = 15;
 		lvlWidthUnits = windowWidth / unitPixels;
 		lvlHeightUnits = windowHeight / unitPixels;
@@ -60,7 +59,7 @@ public class Gameplay extends JPanel implements KeyListener, ActionListener {
 		g.dispose();
 	}
 	
-	public void gfxDraw(Graphics g)
+	public void repaint(Graphics g)
 	{
 		gfxPlayer.paintIcon(this, g, plrHitbox.x, plrHitbox.y);
 		for(int i = 0; i < lvlHeightUnits; i++)
@@ -85,6 +84,7 @@ public class Gameplay extends JPanel implements KeyListener, ActionListener {
 				if(i < numBlockRows)
 				{
 					level[i][j] = new Rect(j * unitPixels, i * unitPixels, unitPixels, unitPixels);
+					System.out.println(i);
 				}
 			}
 		}
@@ -92,18 +92,41 @@ public class Gameplay extends JPanel implements KeyListener, ActionListener {
 	
 	public void tick()
 	{
+		for(int i = 0; i < lvlHeightUnits; i++)
+		{
+			for(int j = 0; j < lvlWidthUnits; j++)
+			{
+				if(colliding(level[i][j], ballHitbox))
+					handleBlockCollision();
+			}
+		}
+		
+		if(colliding(ballHitbox, plrHitbox))
+			handlePlayerCollision();
+	}
+	
+	// I DON'T THINK THIS IS RIGHT
+	public boolean colliding(Rect a, Rect b)
+	{
+		if((a.x + a.w > b.x && a.x < b.x + b.w && a.y + a.h > b.y && a.y < b.y + b.h))
+			return true;
+			
+		return false;
+	}
+	
+	public void handleBlockCollision()
+	{
 		
 	}
 	
-	public void colliding()
+	public void handlePlayerCollision()
 	{
 		
 	}
 	
 	@Override
 	public void actionPerformed(ActionEvent arg0) {
-		// TODO Auto-generated method stub
-		
+		Main.renderer.repaint();
 	}
 
 	@Override
