@@ -38,23 +38,13 @@ public class Gameplay extends JPanel implements KeyListener, ActionListener {
 	
 	private boolean died;
 	
+	private int score;
+	
 	public Gameplay()
 	{
 		gfxBlock = new ImageIcon("res/block.png");
 		gfxBall = new ImageIcon("res/ball.png");
 		gfxPlayer = new ImageIcon("res/player.png");
-		
-		plrHitbox = new Rect(Main.windowWidth / 2 - 15, 810, 135, 15);
-		ballHitbox = new Rect(Main.windowWidth / 2, 795, 15, 15);
-		
-		died = false;
-		
-		ballHdir = 0;
-		ballVdir = 0;
-		ballSpeed = 4;
-		
-		plrSpeed = 8;
-		plrDir = 0;
 		
 		unitPixels = 15;
 		lvlWidthUnits = Main.windowWidth / unitPixels;
@@ -63,9 +53,28 @@ public class Gameplay extends JPanel implements KeyListener, ActionListener {
 		
 		numBlockRows = 30;
 		level = new Rect[lvlHeightUnits][lvlWidthUnits];
-		setLevel();
+		resetGame();
 		//for(int i = 0; i < lvlUnits; i++)
 		//	level[i] = 0;
+	}
+	
+	public void resetGame()
+	{
+		plrHitbox = new Rect(Main.windowWidth / 2 - 15, 810, 135, 15);
+		ballHitbox = new Rect(Main.windowWidth / 2, 795, 15, 15);
+		
+		died = false;
+		
+		score = 0;
+		
+		ballHdir = 0;
+		ballVdir = 0;
+		ballSpeed = 4;
+		
+		plrSpeed = 8;
+		plrDir = 0;
+		
+		setLevel();
 	}
 	
 	// WHERE TO CALL THIS?
@@ -91,6 +100,10 @@ public class Gameplay extends JPanel implements KeyListener, ActionListener {
 			}
 		}
 		gfxBall.paintIcon(this, g, ballHitbox.x, ballHitbox.y);
+		
+		g.setColor(Color.red.darker());
+		g.setFont(new Font("arial", Font.BOLD, 20));
+		g.drawString("Score: " + score, Main.windowWidth - 96, 22);
 		
 		if(died)
 		{
@@ -127,8 +140,13 @@ public class Gameplay extends JPanel implements KeyListener, ActionListener {
 				for(int j = 0; j < lvlWidthUnits; j++)
 				{
 					if(level[i][j] != null)
+					{
 						if(colliding(level[i][j], ballHitbox))
+						{
 							handleBlockCollision(i, j);
+							score++;
+						}
+					}
 				}
 			}
 			
@@ -166,27 +184,30 @@ public class Gameplay extends JPanel implements KeyListener, ActionListener {
 		Rect t1 = new Rect(ballHitbox.x, ballHitbox.y, ballHitbox.w, ballHitbox.h);
 		Rect t2 = new Rect(level[i][j].x, level[i][j].y, level[i][j].w, level[i][j].h);
 		
-		t1.x = ballHitbox.x - ballSpeed;
-		if(!colliding(t1, t2))
-			ballHdir = invertDir(ballHdir);
-		
-		t1.x = ballHitbox.x + ballSpeed;
-		if(!colliding(t1, t2))
-			ballHdir = invertDir(ballHdir);
-		
-		t1.x = ballHitbox.x;
-
-		t1.y = ballHitbox.y - ballSpeed;
-		if(!colliding(t1, t2))
-			ballVdir = invertDir(ballVdir);
-
-		t1.y = ballHitbox.y + ballSpeed;
-		if(!colliding(t1, t2))
-			ballVdir = invertDir(ballVdir);
-		
-		t1.y = ballHitbox.y;
-		
+		// NOTE: Don't use level[i][j] anymore!!
 		level[i][j] = null;
+		
+		if(ballHdir != 0)
+		{
+			t1.x = ballHitbox.x - ballSpeed * ballHdir;
+			if(!colliding(t1, t2))
+			{
+				ballHdir = invertDir(ballHdir);
+				return;
+			}
+			t1.x = ballHitbox.x;
+		}
+		if(ballVdir != 0)
+		{
+			t1.y = ballHitbox.y - ballSpeed * ballVdir;
+			if(!colliding(t1, t2))
+			{
+				ballVdir = invertDir(ballVdir);
+				return;
+			}
+			t1.y = ballHitbox.y;
+		}
+		
 		
 	}
 	
@@ -208,15 +229,22 @@ public class Gameplay extends JPanel implements KeyListener, ActionListener {
 
 	@Override
 	public void keyPressed(KeyEvent e) {
-		if(ballVdir == 0)
-			ballVdir = 1;
-		if(ballHdir == 0)
-			ballHdir = 1;
-		
-		if(e.getKeyCode() == KeyEvent.VK_RIGHT)
-			plrDir = 1;
-		if(e.getKeyCode() == KeyEvent.VK_LEFT)
-			plrDir = -1;
+		if(!died)
+		{
+			if(ballVdir == 0)
+				ballVdir = 1;
+			if(ballHdir == 0)
+				ballHdir = 1;
+			
+			if(e.getKeyCode() == KeyEvent.VK_RIGHT)
+				plrDir = 1;
+			if(e.getKeyCode() == KeyEvent.VK_LEFT)
+				plrDir = -1;
+		}
+		else
+		{
+			resetGame();
+		}
 		
 	}
 
