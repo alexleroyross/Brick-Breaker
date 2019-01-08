@@ -1,5 +1,6 @@
 package breaker;
 
+import java.awt.Color;
 import java.awt.Graphics;
 
 import java.awt.event.ActionEvent;
@@ -19,8 +20,6 @@ public class Gameplay extends JPanel implements KeyListener, ActionListener {
 	Rect plrHitbox;
 	Rect ballHitbox;
 	
-	private int windowWidth;
-	private int windowHeight;
 	private int lvlWidthUnits;
 	private int lvlHeightUnits;
 	private int unitPixels;
@@ -31,22 +30,19 @@ public class Gameplay extends JPanel implements KeyListener, ActionListener {
 	
 	public Gameplay()
 	{
-		gfxBlock = new ImageIcon("block.png");
-		gfxBall = new ImageIcon("ball.png");
-		gfxPlayer = new ImageIcon("player.png");
-
-		windowWidth = 900;
-		windowHeight = 600;
+		gfxBlock = new ImageIcon("res/block.png");
+		gfxBall = new ImageIcon("res/ball.png");
+		gfxPlayer = new ImageIcon("res/player.png");
 		
-		plrHitbox = new Rect(windowWidth / 2 - 15, 810, 135, 15);
-		ballHitbox = new Rect(windowWidth / 2, 795, 15, 15);
+		plrHitbox = new Rect(Main.windowWidth / 2 - 15, 810, 135, 15);
+		ballHitbox = new Rect(Main.windowWidth / 2, 795, 15, 15);
 		
 		unitPixels = 15;
-		lvlWidthUnits = windowWidth / unitPixels;
-		lvlHeightUnits = windowHeight / unitPixels;
+		lvlWidthUnits = Main.windowWidth / unitPixels;
+		lvlHeightUnits = Main.windowHeight / unitPixels;
 		lvlUnits = lvlWidthUnits * lvlHeightUnits;
 		
-		numBlockRows = 15;
+		numBlockRows = 30;
 		level = new Rect[lvlHeightUnits][lvlWidthUnits];
 		setLevel();
 		//for(int i = 0; i < lvlUnits; i++)
@@ -61,6 +57,9 @@ public class Gameplay extends JPanel implements KeyListener, ActionListener {
 	
 	public void repaint(Graphics g)
 	{
+		g.setColor(Color.black);
+		g.fillRect(0, 0, Main.windowWidth, Main.windowHeight);
+		
 		gfxPlayer.paintIcon(this, g, plrHitbox.x, plrHitbox.y);
 		for(int i = 0; i < lvlHeightUnits; i++)
 		{
@@ -84,7 +83,10 @@ public class Gameplay extends JPanel implements KeyListener, ActionListener {
 				if(i < numBlockRows)
 				{
 					level[i][j] = new Rect(j * unitPixels, i * unitPixels, unitPixels, unitPixels);
-					System.out.println(i);
+				}
+				else
+				{
+					level[i][j] = null;
 				}
 			}
 		}
@@ -96,8 +98,9 @@ public class Gameplay extends JPanel implements KeyListener, ActionListener {
 		{
 			for(int j = 0; j < lvlWidthUnits; j++)
 			{
-				if(colliding(level[i][j], ballHitbox))
-					handleBlockCollision();
+				if(level[i][j] != null)
+					if(colliding(level[i][j], ballHitbox))
+						handleBlockCollision();
 			}
 		}
 		
@@ -105,13 +108,12 @@ public class Gameplay extends JPanel implements KeyListener, ActionListener {
 			handlePlayerCollision();
 	}
 	
-	// I DON'T THINK THIS IS RIGHT
 	public boolean colliding(Rect a, Rect b)
 	{
-		if((a.x + a.w > b.x && a.x < b.x + b.w && a.y + a.h > b.y && a.y < b.y + b.h))
-			return true;
-			
-		return false;
+		if(a.x + a.w <= b.x || a.x >= b.x + b.w || a.y + a.h <= b.y || a.y >= b.y + b.h)
+			return false;
+		
+		return true;
 	}
 	
 	public void handleBlockCollision()
@@ -127,6 +129,7 @@ public class Gameplay extends JPanel implements KeyListener, ActionListener {
 	@Override
 	public void actionPerformed(ActionEvent arg0) {
 		Main.renderer.repaint();
+		Main.gameplay.tick();
 	}
 
 	@Override

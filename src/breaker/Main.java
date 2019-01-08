@@ -11,8 +11,13 @@ public class Main {
 	public static Gameplay gameplay;
 	public static Renderer renderer;
 	public static Timer timer;
+	public static int windowWidth;
+	public static int windowHeight;
 	
 	public static void main(String[] args) {
+		windowWidth = 600;
+		windowHeight = 900;
+		
 		obj = new JFrame();
 		gameplay = new Gameplay();
 		renderer = new Renderer();
@@ -20,7 +25,7 @@ public class Main {
 		
 		obj.setTitle("Brick Breaker");
 		obj.add(renderer);
-		obj.setBounds(20, 20, 900, 600);
+		obj.setBounds(20, 20, windowWidth, windowHeight);
 		obj.setBackground(Color.white);
 		obj.setResizable(false);
 		obj.setVisible(true);
