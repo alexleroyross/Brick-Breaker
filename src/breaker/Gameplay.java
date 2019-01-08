@@ -28,6 +28,10 @@ public class Gameplay extends JPanel implements KeyListener, ActionListener {
 	private int numBlockRows;
 	private Rect[][] level;
 	
+	private int ballHdir;
+	private int ballVdir;
+	private int ballSpeed;
+	
 	public Gameplay()
 	{
 		gfxBlock = new ImageIcon("res/block.png");
@@ -36,6 +40,10 @@ public class Gameplay extends JPanel implements KeyListener, ActionListener {
 		
 		plrHitbox = new Rect(Main.windowWidth / 2 - 15, 810, 135, 15);
 		ballHitbox = new Rect(Main.windowWidth / 2, 795, 15, 15);
+		
+		ballHdir = 0;
+		ballVdir = 0;
+		ballSpeed = 2;
 		
 		unitPixels = 15;
 		lvlWidthUnits = Main.windowWidth / unitPixels;
@@ -100,7 +108,7 @@ public class Gameplay extends JPanel implements KeyListener, ActionListener {
 			{
 				if(level[i][j] != null)
 					if(colliding(level[i][j], ballHitbox))
-						handleBlockCollision();
+						handleBlockCollision(i, j);
 			}
 		}
 		
@@ -116,14 +124,43 @@ public class Gameplay extends JPanel implements KeyListener, ActionListener {
 		return true;
 	}
 	
-	public void handleBlockCollision()
+	public void handleBlockCollision(int i, int j)
 	{
+		Rect t1 = new Rect(ballHitbox.x, ballHitbox.y, ballHitbox.w, ballHitbox.h);
+		Rect t2 = new Rect(level[i][j].x, level[i][j].y, level[i][j].w, level[i][j].h);
+		
+		t1.x = ballHitbox.x - ballSpeed;
+		if(!colliding(t1, t2))
+			ballHdir = invertDir(ballHdir);
+		
+		t1.x = ballHitbox.x + ballSpeed;
+		if(!colliding(t1, t2))
+			ballHdir = invertDir(ballHdir);
+		
+		t1.x = ballHitbox.x;
+
+		t1.y = ballHitbox.y - ballSpeed;
+		if(!colliding(t1, t2))
+			ballVdir = invertDir(ballVdir);
+
+		t1.y = ballHitbox.y + ballSpeed;
+		if(!colliding(t1, t2))
+			ballVdir = invertDir(ballVdir);
+		
+		t1.y = ballHitbox.y;
+		
+		level[i][j] = null;
 		
 	}
 	
 	public void handlePlayerCollision()
 	{
-		
+		ballVdir = invertDir(ballVdir);
+	}
+	
+	public int invertDir(int dir)
+	{
+		return -dir;
 	}
 	
 	@Override
@@ -134,7 +171,14 @@ public class Gameplay extends JPanel implements KeyListener, ActionListener {
 
 	@Override
 	public void keyPressed(KeyEvent arg0) {
-		// TODO Auto-generated method stub
+		if(ballVdir == 0)
+			ballVdir = 1;
+		if(ballHdir == 0)
+			ballHdir = 1;
+		
+		
+		
+		
 		
 	}
 
