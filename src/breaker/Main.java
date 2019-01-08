@@ -26,7 +26,8 @@ public class Main {
 		obj.setTitle("Brick Breaker");
 		obj.add(renderer);
 		obj.setBounds(20, 20, windowWidth, windowHeight);
-		obj.setBackground(Color.white);
+		obj.addKeyListener(gameplay);
+		obj.setBackground(Color.black);
 		obj.setResizable(false);
 		obj.setVisible(true);
 		obj.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

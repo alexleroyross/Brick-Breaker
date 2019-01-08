@@ -1,6 +1,7 @@
 package breaker;
 
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.Graphics;
 
 import java.awt.event.ActionEvent;
@@ -32,6 +33,11 @@ public class Gameplay extends JPanel implements KeyListener, ActionListener {
 	private int ballVdir;
 	private int ballSpeed;
 	
+	private int plrSpeed;
+	private int plrDir;
+	
+	private boolean died;
+	
 	public Gameplay()
 	{
 		gfxBlock = new ImageIcon("res/block.png");
@@ -41,9 +47,14 @@ public class Gameplay extends JPanel implements KeyListener, ActionListener {
 		plrHitbox = new Rect(Main.windowWidth / 2 - 15, 810, 135, 15);
 		ballHitbox = new Rect(Main.windowWidth / 2, 795, 15, 15);
 		
+		died = false;
+		
 		ballHdir = 0;
 		ballVdir = 0;
-		ballSpeed = 2;
+		ballSpeed = 4;
+		
+		plrSpeed = 8;
+		plrDir = 0;
 		
 		unitPixels = 15;
 		lvlWidthUnits = Main.windowWidth / unitPixels;
@@ -80,6 +91,13 @@ public class Gameplay extends JPanel implements KeyListener, ActionListener {
 			}
 		}
 		gfxBall.paintIcon(this, g, ballHitbox.x, ballHitbox.y);
+		
+		if(died)
+		{
+			g.setColor(Color.red.darker());
+			g.setFont(new Font("arial", Font.BOLD, 50));
+			g.drawString("Game Over", 175, 400);
+		}
 	}
 	
 	public void setLevel()
@@ -102,18 +120,37 @@ public class Gameplay extends JPanel implements KeyListener, ActionListener {
 	
 	public void tick()
 	{
-		for(int i = 0; i < lvlHeightUnits; i++)
+		if(!died)
 		{
-			for(int j = 0; j < lvlWidthUnits; j++)
+			for(int i = 0; i < lvlHeightUnits; i++)
 			{
-				if(level[i][j] != null)
-					if(colliding(level[i][j], ballHitbox))
-						handleBlockCollision(i, j);
+				for(int j = 0; j < lvlWidthUnits; j++)
+				{
+					if(level[i][j] != null)
+						if(colliding(level[i][j], ballHitbox))
+							handleBlockCollision(i, j);
+				}
 			}
+			
+			if(colliding(ballHitbox, plrHitbox))
+				handlePlayerCollision();
+			
+			if(ballHitbox.y > Main.windowHeight)
+				died = true;
+			
+			if(ballHdir != 0)
+				ballHitbox.x += ballHdir * ballSpeed;
+			if(ballVdir != 0)
+				ballHitbox.y += ballVdir * ballSpeed;
+			
+			if(plrDir != 0)
+				plrHitbox.x += plrDir * plrSpeed;
+			
+			if(ballHitbox.x < 0 || ballHitbox.x + ballHitbox.w > Main.windowWidth)
+				ballHdir = invertDir(ballHdir);
+			if(ballHitbox.y < 0)
+				ballVdir = invertDir(ballVdir);
 		}
-		
-		if(colliding(ballHitbox, plrHitbox))
-			handlePlayerCollision();
 	}
 	
 	public boolean colliding(Rect a, Rect b)
@@ -170,22 +207,25 @@ public class Gameplay extends JPanel implements KeyListener, ActionListener {
 	}
 
 	@Override
-	public void keyPressed(KeyEvent arg0) {
+	public void keyPressed(KeyEvent e) {
 		if(ballVdir == 0)
 			ballVdir = 1;
 		if(ballHdir == 0)
 			ballHdir = 1;
 		
-		
-		
-		
+		if(e.getKeyCode() == KeyEvent.VK_RIGHT)
+			plrDir = 1;
+		if(e.getKeyCode() == KeyEvent.VK_LEFT)
+			plrDir = -1;
 		
 	}
 
 	@Override
-	public void keyReleased(KeyEvent arg0) {
-		// TODO Auto-generated method stub
-		
+	public void keyReleased(KeyEvent e) {
+		if(e.getKeyCode() == KeyEvent.VK_RIGHT && plrDir == 1)
+			plrDir = 0;
+		if(e.getKeyCode() == KeyEvent.VK_LEFT && plrDir == -1)
+			plrDir = 0;
 	}
 
 	@Override
